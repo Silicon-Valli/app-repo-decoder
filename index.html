@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Repo Decoder â GitHub repos in plain English</title>
+  <meta name="description" content="Paste any GitHub URL. Get a plain-English breakdown of what it does, who it's for, and a copyable pitch sentence. No signup, no API key." />
+  <meta property="og:title" content="Repo Decoder" />
+  <meta property="og:description" content="Paste any GitHub URL. Get a plain-English breakdown instantly." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>ð</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090b;
+      --surface: #111113;
+      --surface-2: #18181b;
+      --border: #27272a;
+      --border-hover: #3f3f46;
+      --text: #fafafa;
+      --text-muted: #a1a1aa;
+      --text-dim: #52525b;
+      --accent: #6366f1;
+      --accent-light: #818cf8;
+      --accent-glow: rgba(99, 102, 241, 0.15);
+      --accent-glow-strong: rgba(99, 102, 241, 0.3);
+      --green: #22c55e;
+      --yellow: #eab308;
+      --red: #f87171;
+      --radius: 12px;
+      --radius-sm: 8px;
+      --radius-xs: 6px;
+    }
+
+    html { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Layout */
+    .page {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      padding: 56px 0 48px;
+      text-align: center;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 28px;
+    }
+
+    .logo-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    h1 {
+      font-size: clamp(32px, 6vw, 52px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    h1 span {
+      background: linear-gradient(135deg, var(--accent-light), #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      max-width: 480px;
+      margin: 0 auto 8px;
+      line-height: 1.5;
+    }
+
+    .no-bs {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      flex-wrap: wrap;
+    }
+
+    .no-bs-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .no-bs-dot {
+      width: 4px;
+      height: 4px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    /* Input area */
+    .input-area {
+      margin-bottom: 32px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 6px 6px 6px 16px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .input-row:focus-within {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    #url-input {
+      flex: 1;
+      background: none;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+      font-family: inherit;
+      min-width: 0;
+      padding: 8px 0;
+    }
+
+    #url-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    .decode-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .decode-btn:hover:not(:disabled) {
+      background: #4f52d9;
+    }
+
+    .decode-btn:active:not(:disabled) {
+      transform: scale(0.98);
+    }
+
+    .decode-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Examples */
+    .examples-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .examples-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+      flex-shrink: 0;
+    }
+
+    .example-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .example-chip:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+      background: var(--accent-glow);
+    }
+
+    /* Loading */
+    .loading-state {
+      text-align: center;
+      padding: 48px 0;
+      display: none;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .loading-sub {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* Error */
+    .error-state {
+      background: rgba(248, 113, 113, 0.08);
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: none;
+      margin-bottom: 24px;
+    }
+
+    .error-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 4px;
+    }
+
+    .error-msg {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Results */
+    .results {
+      display: none;
+      flex-direction: column;
+      gap: 16px;
+      padding-bottom: 80px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      transition: border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent-light);
+      margin-bottom: 16px;
+    }
+
+    /* Card 1: Repo header */
+    .repo-name-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .repo-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      word-break: break-word;
+    }
+
+    .repo-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      padding: 4px 10px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+
+    .repo-link:hover {
+      border-color: var(--accent);
+      color: var(--accent-light);
+    }
+
+    .repo-description {
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stat-icon {
+      font-size: 14px;
+    }
+
+    .stat-value {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .lang-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-light);
+      flex-shrink: 0;
+    }
+
+    .topics-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .topic-chip {
+      background: var(--accent-glow);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 11px;
+      color: var(--accent-light);
+      font-weight: 500;
+    }
+
+    /* Card 2: What it does */
+    .excerpt {
+      font-size: 15px;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    /* Card 3: Who it's for */
+    .audience-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .audience-chip {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 14px;
+      font-size: 13px;
+      color: var(--text);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .audience-emoji {
+      font-size: 16px;
+    }
+
+    /* Card 4: The pitch */
+    .pitch-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(192, 132, 252, 0.08));
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .pitch-text {
+      font-size: 16px;
+      color: var(--text);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .copy-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 9px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .copy-btn:hover {
+      background: #4f52d9;
+    }
+
+    .copy-btn.copied {
+      background: var(--green);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 32px 0 48px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: var(--text-muted);
+    }
+
+    /* Rate limit note */
+    .rate-note {
+      background: rgba(234, 179, 8, 0.08);
+      border: 1px solid rgba(234, 179, 8, 0.2);
+      border-radius: var(--radius-xs);
+      padding: 10px 14px;
+      font-size: 12px;
+      color: rgba(234, 179, 8, 0.9);
+      margin-top: 16px;
+      display: none;
+    }
+
+    /* Mobile */
+    @media (max-width: 540px) {
+      .header { padding: 40px 0 36px; }
+      h1 { font-size: 28px; }
+      .subtitle { font-size: 16px; }
+      .input-row { flex-direction: column; padding: 12px; gap: 8px; }
+      .decode-btn { width: 100%; justify-content: center; }
+      #url-input { padding: 4px 0; }
+      .stats-row { gap: 14px; }
+      .card { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <!-- Header -->
+    <header class="header">
+      <div class="logo">
+        <span class="logo-dot"></span>
+        Repo Decoder
+      </div>
+      <h1>GitHub repos,<br /><span>in plain English</span></h1>
+      <p class="subtitle">Paste any public GitHub URL. Get what it does, who it's for, and a one-line pitch you can actually use.</p>
+      <div class="no-bs">
+        <span class="no-bs-item"><span class="no-bs-dot"></span>No signup</span>
+        <span class="no-bs-item"><span class="no-bs-dot"></span>No API key</span>
+        <span class="no-bs-item"><span class="no-bs-dot"></span>No install</span>
+        <span class="no-bs-item"><span class="no-bs-dot"></span>100% free</span>
+      </div>
+    </header>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-row">
+        <input
+          id="url-input"
+          type="url"
+          placeholder="https://github.com/owner/repo"
+          autocomplete="off"
+          autocorrect="off"
+          spellcheck="false"
+        />
+        <button class="decode-btn" id="decode-btn" onclick="handleDecode()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Decode
+        </button>
+      </div>
+      <div class="examples-row">
+        <span class="examples-label">Try:</span>
+        <span class="example-chip" onclick="tryExample('supabase/supabase')">supabase/supabase</span>
+        <span class="example-chip" onclick="tryExample('langchain-ai/langchain')">langchain-ai/langchain</span>
+        <span class="example-chip" onclick="tryExample('vercel/next.js')">vercel/next.js</span>
+        <span class="example-chip" onclick="tryExample('ggerganov/llama.cpp')">ggerganov/llama.cpp</span>
+        <span class="example-chip" onclick="tryExample('microsoft/vscode')">microsoft/vscode</span>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" id="error-state">
+      <div class="error-title" id="error-title">Something went wrong</div>
+      <div class="error-msg" id="error-msg"></div>
+    </div>
+
+    <!-- Loading -->
+    <div class="loading-state" id="loading-state">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-text">Fetching repo data...</div>
+      <div class="loading-sub">Calling GitHub's public API</div>
+    </div>
+
+    <!-- Results -->
+    <div class="results" id="results">
+
+      <!-- Card 1: Repo overview -->
+      <div class="card">
+        <div class="card-label">Repository</div>
+        <div class="repo-name-row">
+          <div class="repo-title" id="repo-name">â</div>
+          <a class="repo-link" id="repo-link" href="#" target="_blank" rel="noopener">
+            View on GitHub
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          </a>
+        </div>
+        <div class="repo-description" id="repo-description"></div>
+        <div class="stats-row">
+          <div class="stat">
+            <span class="stat-icon">â­</span>
+            <span class="stat-value" id="stat-stars">â</span>
+            <span>stars</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">ð´</span>
+            <span class="stat-value" id="stat-forks">â</span>
+            <span>forks</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">ðï¸</span>
+            <span class="stat-value" id="stat-watchers">â</span>
+            <span>watching</span>
+          </div>
+          <div class="stat" id="stat-lang-wrap">
+            <span class="lang-dot" id="lang-dot"></span>
+            <span class="stat-value" id="stat-lang">â</span>
+          </div>
+          <div class="stat">
+            <span class="stat-icon">ð</span>
+            <span id="stat-updated">â</span>
+          </div>
+        </div>
+        <div class="topics-row" id="topics-row"></div>
+      </div>
+
+      <!-- Card 2: What it does -->
+      <div class="card">
+        <div class="card-label">What it does</div>
+        <div class="excerpt" id="excerpt">â</div>
+      </div>
+
+      <!-- Card 3: Who it's for -->
+      <div class="card">
+        <div class="card-label">Who it's for</div>
+        <div class="audience-chips" id="audience-chips"></div>
+      </div>
+
+      <!-- Card 4: The pitch -->
+      <div class="card pitch-card">
+        <div class="card-label">The pitch</div>
+        <div class="pitch-text" id="pitch-text">â</div>
+        <button class="copy-btn" id="copy-btn" onclick="copyPitch()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy pitch
+        </button>
+      </div>
+
+      <div class="rate-note" id="rate-note">
+        GitHub's public API allows 60 requests per hour per IP. If you're hitting rate limits, try again in a bit.
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>Built for founders, PMs, and builders who aren't on GitHub 24/7.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // âââ State âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    let currentPitch = '';
+
+    // âââ URL Parsing âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function parseGitHubURL(input) {
+      const cleaned = input.trim().replace(/\.git$/, '');
+      const match = cleaned.match(/github\.com\/([^\/\s?#]+)\/([^\/\s?#]+)/);
+      if (!match) return null;
+      return { owner: match[1], repo: match[2] };
+    }
+
+    // âââ README Cleaning âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function cleanReadme(raw) {
+      let text = raw;
+      // Remove code blocks
+      text = text.replace(/```[\s\S]*?```/g, '');
+      text = text.replace(/`[^`]*`/g, '');
+      // Remove HTML tags
+      text = text.replace(/<[^>]+>/g, '');
+      // Remove badge/image lines
+      text = text.replace(/!\[.*?\]\(.*?\)/g, '');
+      text = text.replace(/\[!\[.*?\]\(.*?\)\]\(.*?\)/g, '');
+      // Remove markdown headings
+      text = text.replace(/^#{1,6}\s+.*/gm, '');
+      // Remove horizontal rules
+      text = text.replace(/^[-*_]{3,}\s*$/gm, '');
+      // Remove markdown links (keep text)
+      text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
+      // Remove bold/italic markers
+      text = text.replace(/[*_]{1,3}([^*_]+)[*_]{1,3}/g, '$1');
+      // Remove lines with < 30 chars or that are mostly symbols
+      const lines = text.split('\n');
+      const cleaned = lines.filter(line => {
+        const trimmed = line.trim();
+        if (trimmed.length < 30) return false;
+        if ((trimmed.match(/[<>\[\]|!@#$%^&*]/g) || []).length > trimmed.length * 0.3) return false;
+        return true;
+      });
+      // Take first 3 non-empty paragraphs
+      const paragraphs = cleaned.join('\n').split(/\n{2,}/).map(p => p.trim()).filter(p => p.length > 40);
+      const excerpt = paragraphs.slice(0, 3).join(' ').replace(/\s+/g, ' ').trim();
+      return excerpt.length > 500 ? excerpt.slice(0, 497) + '...' : excerpt;
+    }
+
+    // âââ Audience Inference ââââââââââââââââââââââââââââââââââââââââââââââââââ
+    const AUDIENCE_RULES = [
+      { pattern: /\bai\b|\bllm\b|\bgpt\b|\bmachine.?learning\b|\bml\b|\bneural\b|\btransformer\b|\bembedding/i, label: 'AI builders & researchers', emoji: 'ð¤' },
+      { pattern: /\bdev.?tool\b|\bdeveloper.?tool\b|\bcli\b|\bterminal\b|\bshell\b|\bdebugg/i, label: 'Developers & engineers', emoji: 'âï¸' },
+      { pattern: /\bstartup\b|\bfounder\b|\bsaas\b|\bno.?code\b|\blow.?code\b|\bindie/i, label: 'Founders & indie hackers', emoji: 'ð' },
+      { pattern: /\bdata\b|\banalytics\b|\bdashboard\b|\bvisuali\b|\bsql\b|\bdataframe/i, label: 'Data teams & analysts', emoji: 'ð' },
+      { pattern: /\bdesign\b|\bui\b|\bux\b|\bfrontend\b|\bcomponent\b|\bstorybook/i, label: 'Designers & frontend devs', emoji: 'ð¨' },
+      { pattern: /\bsecurity\b|\bpentesting\b|\baudit\b|\bvuln\b|\bcrypt/i, label: 'Security engineers', emoji: 'ð' },
+      { pattern: /\bdevops\b|\bkubernetes\b|\bdocker\b|\binfra\b|\bci.?cd\b|\bcloud/i, label: 'DevOps & platform teams', emoji: 'âï¸' },
+      { pattern: /\bapi\b|\bbackend\b|\bserver\b|\bmicroservice\b|\brest\b|\bgraphql/i, label: 'Backend developers', emoji: 'ð§' },
+      { pattern: /\bmobile\b|\bios\b|\bandroid\b|\bswift\b|\bkotlin\b|\breact.?native/i, label: 'Mobile developers', emoji: 'ð±' },
+      { pattern: /\bgame\b|\bgaming\b|\bunreal\b|\bunity\b|\bphysics.engine/i, label: 'Game developers', emoji: 'ð®' },
+      { pattern: /\beducation\b|\blearning\b|\btutorial\b|\bstudent\b|\bcourse/i, label: 'Learners & educators', emoji: 'ð' },
+    ];
+
+    function inferAudience(description, topics, language) {
+      const haystack = `${description || ''} ${(topics || []).join(' ')}`.toLowerCase();
+      const matches = [];
+      for (const rule of AUDIENCE_RULES) {
+        if (rule.pattern.test(haystack) && matches.length < 3) {
+          matches.push({ label: rule.label, emoji: rule.emoji });
+        }
+      }
+      if (matches.length === 0 && language) {
+        const langAudience = {
+          'Python': { label: 'Python developers', emoji: 'ð' },
+          'JavaScript': { label: 'JavaScript developers', emoji: 'ð' },
+          'TypeScript': { label: 'TypeScript developers', emoji: 'ð' },
+          'Rust': { label: 'Rust developers', emoji: 'ð¦' },
+          'Go': { label: 'Go developers', emoji: 'ð¹' },
+          'Java': { label: 'Java developers', emoji: 'â' },
+          'C++': { label: 'C++ developers', emoji: 'â¡' },
+          'C': { label: 'Systems developers', emoji: 'âï¸' },
+          'Swift': { label: 'Swift developers', emoji: 'ð' },
+          'Kotlin': { label: 'Android developers', emoji: 'ð±' },
+          'Ruby': { label: 'Ruby developers', emoji: 'ð' },
+          'PHP': { label: 'Web developers', emoji: 'ð' },
+        };
+        const fallback = langAudience[language];
+        if (fallback) matches.push(fallback);
+        else matches.push({ label: 'Software developers', emoji: 'ð»' });
+      }
+      return matches;
+    }
+
+    // âââ Pitch Generator âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function generatePitch(repoData, excerpt, audience) {
+      const name = repoData.name || 'This project';
+      const desc = repoData.description || '';
+      const stars = formatNumber(repoData.stargazers_count);
+      const lang = repoData.language || '';
+      const audienceLabel = audience.length > 0 ? audience[0].label.toLowerCase() : 'developers';
+
+      let pitch = '';
+      if (desc) {
+        const cleanDesc = desc.replace(/^(a |an |the )/i, '').trim();
+        pitch = `${name} is ${/^[aeiou]/i.test(cleanDesc) ? 'an' : 'a'} ${cleanDesc}`;
+        if (!pitch.endsWith('.')) pitch += '.';
+        if (stars !== '0') {
+          pitch += ` It has ${stars} GitHub stars`;
+          if (lang) pitch += ` and is built in ${lang}`;
+          pitch += `, making it one of the more established options for ${audienceLabel}.`;
+        } else {
+          if (lang) pitch += ` Built in ${lang},`;
+          pitch += ` targeted at ${audienceLabel}.`;
+        }
+      } else if (excerpt) {
+        const truncated = excerpt.slice(0, 120).replace(/\s+\S*$/, '') + '...';
+        pitch = `${name}: ${truncated} ${stars !== '0' ? `(${stars} stars on GitHub)` : ''}`.trim();
+      } else {
+        pitch = `${name} is a GitHub project with ${stars} stars${lang ? `, primarily written in ${lang}` : ''}.`;
+      }
+
+      return pitch;
+    }
+
+    // âââ Number Formatting âââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function formatNumber(n) {
+      if (!n) return '0';
+      if (n >= 1000000) return (n / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+      return n.toString();
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso);
+      const now = new Date();
+      const diff = now - d;
+      const days = Math.floor(diff / 86400000);
+      if (days < 1) return 'today';
+      if (days < 7) return `${days}d ago`;
+      if (days < 30) return `${Math.floor(days/7)}w ago`;
+      if (days < 365) return `${Math.floor(days/30)}mo ago`;
+      return `${Math.floor(days/365)}y ago`;
+    }
+
+    // âââ Language Colors âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    const LANG_COLORS = {
+      'JavaScript': '#f7df1e', 'TypeScript': '#3178c6', 'Python': '#3572a5',
+      'Rust': '#dea584', 'Go': '#00add8', 'Java': '#b07219', 'C++': '#f34b7d',
+      'C': '#555555', 'C#': '#178600', 'Ruby': '#701516', 'Swift': '#f05138',
+      'Kotlin': '#a97bff', 'PHP': '#4f5d95', 'Shell': '#89e051', 'HTML': '#e34c26',
+      'CSS': '#563d7c', 'Vue': '#41b883', 'Svelte': '#ff3e00', 'Dart': '#00b4ab',
+    };
+
+    // âââ Render Results ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function renderResults(repoData, excerpt, audience) {
+      // Card 1
+      document.getElementById('repo-name').textContent = repoData.full_name || repoData.name;
+      document.getElementById('repo-link').href = repoData.html_url;
+      document.getElementById('repo-description').textContent = repoData.description || 'No description provided.';
+      document.getElementById('stat-stars').textContent = formatNumber(repoData.stargazers_count);
+      document.getElementById('stat-forks').textContent = formatNumber(repoData.forks_count);
+      document.getElementById('stat-watchers').textContent = formatNumber(repoData.watchers_count);
+      document.getElementById('stat-updated').textContent = 'Updated ' + formatDate(repoData.updated_at);
+
+      const langEl = document.getElementById('stat-lang');
+      const langDot = document.getElementById('lang-dot');
+      if (repoData.language) {
+        langEl.textContent = repoData.language;
+        langDot.style.background = LANG_COLORS[repoData.language] || 'var(--accent-light)';
+      } else {
+        document.getElementById('stat-lang-wrap').style.display = 'none';
+      }
+
+      const topicsRow = document.getElementById('topics-row');
+      topicsRow.innerHTML = '';
+      if (repoData.topics && repoData.topics.length > 0) {
+        repoData.topics.slice(0, 8).forEach(topic => {
+          const chip = document.createElement('span');
+          chip.className = 'topic-chip';
+          chip.textContent = topic;
+          topicsRow.appendChild(chip);
+        });
+      }
+
+      // Card 2
+      document.getElementById('excerpt').textContent = excerpt || repoData.description || 'No description available.';
+
+      // Card 3
+      const audienceEl = document.getElementById('audience-chips');
+      audienceEl.innerHTML = '';
+      if (audience.length === 0) {
+        audienceEl.innerHTML = '<span class="audience-chip"><span class="audience-emoji">ð»</span>Software developers</span>';
+      } else {
+        audience.forEach(a => {
+          const chip = document.createElement('div');
+          chip.className = 'audience-chip';
+          chip.innerHTML = `<span class="audience-emoji">${a.emoji}</span>${a.label}`;
+          audienceEl.appendChild(chip);
+        });
+      }
+
+      // Card 4
+      const pitch = generatePitch(repoData, excerpt, audience);
+      currentPitch = pitch;
+      document.getElementById('pitch-text').textContent = `"${pitch}"`;
+    }
+
+    // âââ Show/Hide States ââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function showLoading(repoPath) {
+      document.getElementById('loading-state').style.display = 'block';
+      document.getElementById('loading-text').textContent = `Decoding ${repoPath}...`;
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('error-state').style.display = 'none';
+      document.getElementById('decode-btn').disabled = true;
+      document.getElementById('url-input').disabled = true;
+    }
+
+    function showError(title, msg) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('results').style.display = 'none';
+      const err = document.getElementById('error-state');
+      err.style.display = 'block';
+      document.getElementById('error-title').textContent = title;
+      document.getElementById('error-msg').textContent = msg;
+      document.getElementById('decode-btn').disabled = false;
+      document.getElementById('url-input').disabled = false;
+    }
+
+    function showResults(repoData, excerpt, audience) {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('error-state').style.display = 'none';
+      renderResults(repoData, excerpt, audience);
+      document.getElementById('results').style.display = 'flex';
+      document.getElementById('decode-btn').disabled = false;
+      document.getElementById('url-input').disabled = false;
+      // Smooth scroll to results
+      setTimeout(() => {
+        document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    // âââ Main Decode âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    async function handleDecode() {
+      const input = document.getElementById('url-input').value.trim();
+      if (!input) return;
+
+      const parsed = parseGitHubURL(input);
+      if (!parsed) {
+        showError(
+          'Not a GitHub URL',
+          'Paste a full GitHub repo URL like: https://github.com/owner/repo-name'
+        );
+        return;
+      }
+
+      const { owner, repo } = parsed;
+      showLoading(`${owner}/${repo}`);
+
+      const apiBase = `https://api.github.com/repos/${owner}/${repo}`;
+
+      try {
+        const [repoRes, readmeRes] = await Promise.allSettled([
+          fetch(apiBase, { headers: { Accept: 'application/vnd.github.v3+json' } }),
+          fetch(`${apiBase}/readme`, { headers: { Accept: 'application/vnd.github.v3+json' } }),
+        ]);
+
+        // Handle repo response
+        if (repoRes.status === 'rejected') throw new Error('network');
+        const repoResp = repoRes.value;
+
+        if (repoResp.status === 404) {
+          showError('Repo not found', `github.com/${owner}/${repo} doesn't exist or is private. Double-check the URL.`);
+          return;
+        }
+        if (repoResp.status === 403) {
+          showError(
+            'GitHub rate limit hit',
+            'GitHub allows 60 API requests per hour per IP. You\'ve hit the limit. Try again in an hour.'
+          );
+          document.getElementById('rate-note').style.display = 'block';
+          return;
+        }
+        if (!repoResp.ok) {
+          showError('GitHub API error', `Got a ${repoResp.status} from GitHub. Try again in a moment.`);
+          return;
+        }
+
+        const repoData = await repoResp.json();
+
+        // Handle readme
+        let excerpt = '';
+        if (readmeRes.status === 'fulfilled' && readmeRes.value.ok) {
+          try {
+            const readmeData = await readmeRes.value.json();
+            const raw = atob(readmeData.content);
+            excerpt = cleanReadme(raw);
+          } catch (e) {
+            excerpt = repoData.description || '';
+          }
+        } else {
+          excerpt = repoData.description || '';
+        }
+
+        const audience = inferAudience(repoData.description, repoData.topics, repoData.language);
+        showResults(repoData, excerpt, audience);
+
+      } catch (err) {
+        showError(
+          'Network error',
+          'Couldn\'t reach GitHub\'s API. Check your connection and try again.'
+        );
+      }
+    }
+
+    // âââ Copy Pitch ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function copyPitch() {
+      if (!currentPitch) return;
+      const btn = document.getElementById('copy-btn');
+
+      const doCopy = () => {
+        btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy pitch`;
+          btn.classList.remove('copied');
+        }, 2000);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(currentPitch).then(doCopy).catch(() => legacyCopy());
+      } else {
+        legacyCopy();
+      }
+
+      function legacyCopy() {
+        const el = document.createElement('textarea');
+        el.value = currentPitch;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        try { document.execCommand('copy'); doCopy(); } catch (e) {}
+        document.body.removeChild(el);
+      }
+    }
+
+    // âââ Example Repos âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+    function tryExample(path) {
+      document.getElementById('url-input').value = `https://github.com/${path}`;
+      handleDecode();
+    }
+
+    // âââ Keyboard shortcut âââââââââââââââââââââââââââââââââââââââââââââââââââ
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('url-input').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') handleDecode();
+      });
+    });
+  </script>
+</body>
+</html>
