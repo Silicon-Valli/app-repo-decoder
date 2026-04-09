@@ -1377,7 +1377,7 @@ K��ˌ�
 
     function inferAudience(description, topics, language) {
       const combined = [(description || ''), ...(topics || [])].join(' ');
-      const matches = AUDCOENCE_RULES.filter(r => r.pattern.test(combined));
+      const matches = AUDIENCE_RULES.filter(r => r.pattern.test(combined));
       if (matches.length > 0) return matches.slice(0, 3);
       if (language) return [{ label: `${language} developers`, emoji: '💻' }];
       return [{ label: 'Software developers', emoji: '💻' }];
